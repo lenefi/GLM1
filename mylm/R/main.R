@@ -7,5 +7,3 @@ data(SLID, package = "car")
 SLID <- SLID[complete.cases(SLID), ]
 
 summary(SLID)
-lm(SLID)
-
