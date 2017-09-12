@@ -77,10 +77,12 @@ plot.mylm <- function(object, ...){
   # Code here is used when plot(object) is used on objects of class "mylm"
 
   library(ggplot2)
+
   # ggplot requires that the data is in a data.frame, this must be done here
-  ggplot() + geom_point()
+  ggplot(est, aes(sample = .stdresid)) + stat_qq(pch = 19) + geom_abline(intercept = 0, slope =1, linetype = "dotted")+ labs(x="Theoretical quantiles", y="Standardized residuals", title = "Normal Q-Q", subtitle = deparse(est$call))
 
   # if you want the plot to look nice, you can e.g. use "labs" to add labels, and add colors in the geom_point-function
+
 
 }
 
