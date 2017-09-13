@@ -32,13 +32,13 @@ mylm <- function(formula, data = list(), contrasts = NULL, ...){
   # Store design matrix, response and fitted values
   # est$mat <- X
   est$response <- y
-  est$fitted.values <- Yhat
+  est$fitted <- Yhat
 
   # Calculate and store residual standard error and standard error
   mu_est <- X %*% betahat
   SSE <- t(y - mu_est) %*% (y - mu_est)
   n <- dim(data)[1]
-  p <- dim(model1$coeff)[1]
+  p <- dim(est$coeff)[1]
   est$res_std_err <- sqrt( SSE / (n-p) )
 
   # cov is the covariance matrix for betahat
@@ -55,7 +55,6 @@ mylm <- function(formula, data = list(), contrasts = NULL, ...){
 }
 
 print.mylm <- function(object){
-
   # Code here is used when print(object) is used on objects of class "mylm"
   # Useful functions include cat, print.default and format
 
@@ -71,8 +70,8 @@ print.mylm <- function(object){
 summary.mylm <- function(object){
   zstat <- vector()
   for (n in object$coeff){
-    z = bject$coeff/((est$res_std_err)*sqrt(object$XtX_inv[n][n]))
-    print(object$coeff[n], " z statistic:  ", z ," p-value: ", 2*pnorm(-abs(z)))
+    z =object$coeff/((est$res_std_err)*sqrt(object$XtX_inv[n][n]))
+    print(object$coeff[n], " standard error: ", sqrt(object$cov[n][n]), " z statistic:  ", z ," p-value: ", 2*pnorm(-abs(z)))
 
 
 
@@ -82,15 +81,12 @@ summary.mylm <- function(object){
   #cat('Summary of object\n')
 }
 
-plot.mylm <- function(object, ...){
-  # Code here is used when plot(object) is used on objects of class "mylm"
-
-  library(ggplot2)
-  # ggplot requires that the data is in a data.frame, this must be done here
-  ggplot() + geom_point()
-
-  # if you want the plot to look nice, you can e.g. use "labs" to add labels, and add colors in the geom_point-function
-
+plot.mylm <- function(object){
+  # Put dataframe on object
+  fitres = data.frame(fitted = object$fitted, res = object$res)
+  # ggplot on dataframe
+  ggplot(fitres) + geom_point(aes(x=fitted, y=res)) +
+    labs(x="Fitted values", y="Residuals", title = "Residuals vs Fitted values")
 }
 
 anova.mylm <- function(object, ...){
@@ -127,5 +123,3 @@ anova.mylm <- function(object, ...){
   return(model)
 
 }
-
-
