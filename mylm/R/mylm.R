@@ -32,17 +32,17 @@ mylm <- function(formula, data = list(), contrasts = NULL, ...){
   # Store design matrix, response and fitted values
   # est$mat <- X
   est$response <- y
-  est$fitted <- Yhat
+  est$fitted.values <- Yhat
 
   # Calculate and store residual standard error and standard error
   mu_est <- X %*% betahat
   SSE <- t(y - mu_est) %*% (y - mu_est)
   n <- dim(data)[1]
   p <- dim(est$coeff)[1]
-  est$res_std_err <- sqrt( SSE / (n-p) )
+  est$res_std_err <- as.numeric(sqrt( SSE / (n-p) ))
 
   # cov is the covariance matrix for betahat
-  est$cov <- (est$res_std_err^2)[1] * ( XtX_inv)
+  est$cov <- (est$res_std_err^2) * ( XtX_inv)
 
   # degrees of freedom for our model (observations - estimated parameters)
   est$freedom <- n-p
@@ -54,7 +54,7 @@ mylm <- function(formula, data = list(), contrasts = NULL, ...){
   return(est)
 }
 
-print.mylm <- function(object){
+print.mylm <- function(object, ...){
   # Code here is used when print(object) is used on objects of class "mylm"
   # Useful functions include cat, print.default and format
 
@@ -67,26 +67,29 @@ print.mylm <- function(object){
   print.default(format(out, digits = 4))
 }
 
-summary.mylm <- function(object){
-  zstat <- vector()
-  for (n in object$coeff){
-    z =object$coeff/((est$res_std_err)*sqrt(object$XtX_inv[n][n]))
-    print(object$coeff[n], " standard error: ", sqrt(object$cov[n][n]), " z statistic:  ", z ," p-value: ", 2*pnorm(-abs(z)))
-
-
-
-  }
+#summary.mylm <- function(object, ...){
   # Code here is used when summary(object) is used on objects of class "mylm"
   # Useful functions include cat, print.default and format
   #cat('Summary of object\n')
+
+summary.mylm <- function(object){
+  zstat <- vector()
+  for (i in 1:length(object$coeff)){
+    z =object$coeff[i]/((object$res_std_err[1])*sqrt(object$XtX_inv[i,i]))
+    cat(format(object$coeff[i], digits = 4), " standard error: ", format(sqrt(object$cov[i,i]),
+        digits = 4)," z statistic:  ", format(z , digits = 4)," p-value: ", format(2*pnorm(-abs(z)), digits = 4), "\n" )
+  }
 }
 
-plot.mylm <- function(object){
-  # Put dataframe on object
-  fitres = data.frame(fitted = object$fitted, res = object$res)
-  # ggplot on dataframe
-  ggplot(fitres) + geom_point(aes(x=fitted, y=res)) +
-    labs(x="Fitted values", y="Residuals", title = "Residuals vs Fitted values")
+plot.mylm <- function(object, ...){
+  # Code here is used when plot(object) is used on objects of class "mylm"
+
+  library(ggplot2)
+  # ggplot requires that the data is in a data.frame, this must be done here
+  ggplot() + geom_point()
+
+  # if you want the plot to look nice, you can e.g. use "labs" to add labels, and add colors in the geom_point-function
+
 }
 
 anova.mylm <- function(object, ...){
