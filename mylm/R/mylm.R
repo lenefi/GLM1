@@ -54,7 +54,8 @@ mylm <- function(formula, data = list(), contrasts = NULL, ...){
   return(est)
 }
 
-print.mylm <- function(object, ...){
+print.mylm <- function(object){
+
   # Code here is used when print(object) is used on objects of class "mylm"
   # Useful functions include cat, print.default and format
 
@@ -67,22 +68,28 @@ print.mylm <- function(object, ...){
   print.default(format(out, digits = 4))
 }
 
-summary.mylm <- function(object, ...){
+summary.mylm <- function(object){
+  zstat <- vector()
+  for (n in object$coeff){
+    z = bject$coeff/((est$res_std_err)*sqrt(object$XtX_inv[n][n]))
+    print(object$coeff[n], " z statistic:  ", z ," p-value: ", 2*pnorm(-abs(z)))
+
+
+
+  }
   # Code here is used when summary(object) is used on objects of class "mylm"
   # Useful functions include cat, print.default and format
-  cat('Summary of object\n')
+  #cat('Summary of object\n')
 }
 
 plot.mylm <- function(object, ...){
   # Code here is used when plot(object) is used on objects of class "mylm"
 
   library(ggplot2)
-
   # ggplot requires that the data is in a data.frame, this must be done here
-  ggplot(est, aes(sample = .stdresid)) + stat_qq(pch = 19) + geom_abline(intercept = 0, slope =1, linetype = "dotted")+ labs(x="Theoretical quantiles", y="Standardized residuals", title = "Normal Q-Q", subtitle = deparse(est$call))
+  ggplot() + geom_point()
 
   # if you want the plot to look nice, you can e.g. use "labs" to add labels, and add colors in the geom_point-function
-
 
 }
 
@@ -120,3 +127,5 @@ anova.mylm <- function(object, ...){
   return(model)
 
 }
+
+
